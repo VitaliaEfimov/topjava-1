@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -40,10 +41,14 @@ public class MealServlet extends HttpServlet {
                 log.debug("create");
             case "update":
                 log.debug("update");
+                Meal meal = action.equals("create") ?
+                        new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "Описание", 1000) :
+                        repository.get(id);
+                request.setAttribute("meal", meal);
                 request.getRequestDispatcher("form.jsp").forward(request, response);
                 break;
             case "delete":
-                log.debug("delete");
+                log.info("Delete {}", id);
                 repository.delete(Integer.valueOf(id));
                 listMeals = repository.getAll();
                 request.setAttribute("listMs", listMeals);
@@ -61,13 +66,14 @@ public class MealServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
         String id = req.getParameter("id");
         String date = req.getParameter("date");
         String description = req.getParameter("description");
         String calories = req.getParameter("calories");
         System.out.println(id + " " + date + " " + description + " " + calories);
         log.debug("redirect to meals");
-        repository.save(new Meal(LocalDateTime.parse(date), description, Integer.valueOf(calories)));
+        repository.save(new Meal(Integer.valueOf(id), LocalDateTime.parse(date), description, Integer.valueOf(calories)));
         String action = req.getParameter("action");
         List<MealTo> listMeals;
         listMeals = repository.getAll();

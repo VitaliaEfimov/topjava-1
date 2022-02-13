@@ -51,4 +51,8 @@ public class MealRepository {
         System.out.println(mealsTo);
         return mealsTo;
     }
+
+    public Meal get(String id) {
+        return meals.get(Integer.valueOf(id));
+    }
 }
